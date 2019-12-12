@@ -271,7 +271,7 @@ public class PushbotTeleopTank_Iterative extends OpMode{
         else {
             aButtonHeld = false;
         }
-
+/*
         if(gamepad1.b)
         {
             if (!bButtonHeld)
@@ -285,7 +285,7 @@ public class PushbotTeleopTank_Iterative extends OpMode{
             bButtonHeld = false;
         }
 
-
+*/
         if(gamepad1.y)
         {
             if (!yButtonHeld)

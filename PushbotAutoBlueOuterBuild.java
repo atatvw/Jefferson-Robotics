@@ -103,9 +103,9 @@ public class PushbotAutoBlueOuterBuild extends LinearOpMode {
        // delayTime(4.2);
       //  robot.liftMotor.setPower(0.0);
 
-        encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 710, 743, 2.0); // move out from wall
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,1234,-1570,2.0); //Turn to line
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,4286,4501,10.0);//Move to line
+        encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 280, 280, 10.0); // move out from wall
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,1250,-1450,10.0); //Turn to line
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,3600,3600,10.0);//Move to line
         //drop marker
        // delayTime(0.2);
       //  robot.markerServo.setPosition(SERVO_HIGH);

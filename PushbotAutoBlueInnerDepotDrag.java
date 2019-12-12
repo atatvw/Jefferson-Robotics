@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -61,8 +62,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto Red Outer Build Park", group="Pushbot")
-public class PushbotAutoRedOuterBuild extends LinearOpMode {
+@Autonomous(name="Auto Blue Inner Depot Drag", group="Pushbot")
+public class PushbotAutoBlueInnerDepotDrag extends LinearOpMode {
 
     /* Declare OpMode members. */
     HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
@@ -81,6 +82,14 @@ public class PushbotAutoRedOuterBuild extends LinearOpMode {
     static final double RIGHT_SERVO_CLOSED = 0.27;
     static final double RIGHT_SERVO_OPEN = 1.0;
 
+
+static final double LEFT_DOWN = 0.5;
+static final double LEFT_UP= 0.0;
+static final double RIGHT_DOWN = 0.5;
+static final double RIGHT_UP = 0.0;
+
+
+
     @Override
     public void runOpMode() {
 
@@ -94,6 +103,9 @@ public class PushbotAutoRedOuterBuild extends LinearOpMode {
         robot.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
       //  robot.liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        //Touch Sensor
+       robot.rearTouch.setMode(DigitalChannel.Mode.INPUT);
+
      //   robot.markerServo.setPosition(SERVO_LOW);
         waitForStart();
 
@@ -103,9 +115,32 @@ public class PushbotAutoRedOuterBuild extends LinearOpMode {
        // delayTime(4.2);
       //  robot.liftMotor.setPower(0.0);
 
-        encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 280, 280, 10.0); // move out from wall
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-1250,1400,10.0); //Turn to line
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,3600,3600,10.0);//Move to line
+        //Drive to position (approx center of foundation)
+        encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 280, 280, 10.0,false); // move out from wall
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-1250,1400,10.0,false); //Turn to line
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,6000,6000,10.0,false);//Move to build zone
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,1250,-1450,10.0, false);//Turn away from foundation
+
+       // Move to foundation
+        robot.leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        robot.leftDriveMotor.setPower(-0.25);
+        robot.rightDriveMotor.setPower(-0.25);
+
+        while(robot.rearTouch.getState()== false) {
+            delayTime(0.01);
+        }
+
+        robot.leftDriveMotor.setPower(0);
+        robot.rightDriveMotor.setPower(0);
+
+        robot.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //Latch onto foundation
+        robot.leftDragServo.setPosition(LEFT_DOWN);
+        robot.rightDragServo.setPosition(RIGHT_DOWN);
 
         //drop marker
        // delayTime(0.2);
@@ -220,11 +255,29 @@ public class PushbotAutoRedOuterBuild extends LinearOpMode {
         }
     }
 
-    public void encoderDrivePosition(double leftSpeed, double rightSpeed,
-                             int leftPosition, int rightPosition,
-                             double timeoutS) {
+    public void encoderDrivePosition(double ls, double rs,
+                                     int lp, int rp,
+                                     double timeoutS, boolean reverseMode) {
         int newLeftTarget;
         int newRightTarget;
+
+        double leftSpeed;
+        double rightSpeed;
+        int leftPosition;
+        int rightPosition;
+
+        //Remap values if reverse mode
+        if (!reverseMode){
+            leftSpeed = ls;
+            rightSpeed = rs;
+            leftPosition = lp;
+            rightPosition = rp;
+        }else{
+            leftSpeed = -rs;
+            rightSpeed =-ls;
+            leftPosition = -rp;
+            rightPosition =-lp;
+        }
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
@@ -236,9 +289,8 @@ public class PushbotAutoRedOuterBuild extends LinearOpMode {
             robot.rightDriveMotor.setTargetPosition(newRightTarget);
 
             // Turn On RUN_TO_POSITION
-            robot.leftDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rightDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+robot.leftDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+robot.rightDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             // reset the timeout time and start motion.
             runtime.reset();
             robot.leftDriveMotor.setPower(leftSpeed);

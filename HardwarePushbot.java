@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -58,6 +59,11 @@ public class HardwarePushbot
 /*Public Servos.*/
     public Servo leftGrabServo = null;
     public Servo rightGrabServo = null;
+    public Servo leftDragServo = null;
+    public Servo rightDragServo = null;
+
+    /*Public Touch Sensor*/
+    public DigitalChannel rearTouch = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -81,7 +87,11 @@ public class HardwarePushbot
         //Define and Intit Servos
         leftGrabServo =hwMap.get(Servo.class,"leftGrabServo");
         rightGrabServo = hwMap.get(Servo.class,"rightGrabServo");
+        leftDragServo = hwMap.get(Servo.class, "leftDragServo");
+        rightDragServo = hwMap.get(Servo.class, "rightDragServo");
 
+        //Define and Init Touch Sensor
+        rearTouch = hwMap.get(DigitalChannel.class, "rearTouch");
 
         leftDriveMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightDriveMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors

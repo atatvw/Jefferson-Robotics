@@ -103,9 +103,9 @@ public class PushbotAutoBlueInnerDepotFarPark extends LinearOpMode {
        // delayTime(4.2);
       //  robot.liftMotor.setPower(0.0);
 
-        encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 2337, 2321, 2.0); // move out from wall
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-1050,1409,2.0); //Turn to line
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,1514,14944,2.0);//Move to line
+        encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 2200, 2200, 10.0); // move out from wall
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-1250,1400,10.0); //Turn to line
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,2100,2100,10.0);//Move to line
 
         //drop marker
        // delayTime(0.2);
