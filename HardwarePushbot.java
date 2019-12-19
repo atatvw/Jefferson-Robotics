@@ -88,7 +88,7 @@ public class HardwarePushbot
         leftGrabServo =hwMap.get(Servo.class,"leftGrabServo");
         rightGrabServo = hwMap.get(Servo.class,"rightGrabServo");
         leftDragServo = hwMap.get(Servo.class, "leftDragServo");
-        rightDragServo = hwMap.get(Servo.class, "rightDragServo");
+       // rightDragServo = hwMap.get(Servo.class, "rightDragServo");
 
         //Define and Init Touch Sensor
         rearTouch = hwMap.get(DigitalChannel.class, "rearTouch");

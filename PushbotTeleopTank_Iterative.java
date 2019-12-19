@@ -33,6 +33,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
@@ -71,6 +72,11 @@ public class PushbotTeleopTank_Iterative extends OpMode{
     static final double RIGHT_SERVO_CLOSED = 0.85;
     static final double RIGHT_SERVO_OPEN = 0.35 ; // CHANGE
 
+    static final double LEFT_DOWN = 0.15;
+    static final double LEFT_UP= 1.0;
+    static final double RIGHT_DOWN = 0.5;
+    static final double RIGHT_UP = 0.0;
+
     double          targetSpeedRight = 0.0;
     double          targetSpeedLeft = 0.0;
     double          currentSpeedLeft = 0.0;
@@ -83,8 +89,10 @@ public class PushbotTeleopTank_Iterative extends OpMode{
     boolean         bButtonHeld = false;
     boolean         yButtonHeld = false;
     boolean         aButtonHeld = false;
+    boolean         xButtonHeld = false;
     boolean         servoOpen = false;
     boolean         slowMode = false;
+    boolean         servoUp = true;
 
     double          driveSpeed = MAX_SPEED;
 
@@ -130,7 +138,7 @@ public class PushbotTeleopTank_Iterative extends OpMode{
         currentSpeedLeft = 0.0;
        // currentSpeedArm = 0.0;
         currentLiftSpeed = 0.0;
-
+        robot.rearTouch.setMode(DigitalChannel.Mode.INPUT);
     }
 
     /*
@@ -296,7 +304,8 @@ public class PushbotTeleopTank_Iterative extends OpMode{
                     driveSpeed = 0.3 * MAX_SPEED;
                     slowMode = true;
                 }
-                else {
+                else
+                    {
                     driveSpeed = MAX_SPEED;
                     slowMode = false;
                 }
@@ -308,16 +317,40 @@ public class PushbotTeleopTank_Iterative extends OpMode{
         }
 
 
+        if(gamepad1.x)
+        {
+            if(!xButtonHeld)
+            {
+                xButtonHeld = true;
+
+                if(servoUp){
+                    servoUp=false;
+                    robot.leftDragServo.setPosition(LEFT_DOWN);
+                }
+                else
+                {
+                    servoUp=true;
+                    robot.leftDragServo.setPosition(LEFT_UP);
+                }
+            }
+        }
+        else
+        {
+            xButtonHeld = false;
+        }
+
         telemetry.addData("reverse", reverseMode);
 
-        telemetry.addData("currentLeft", currentSpeedLeft);
-        telemetry.addData("currentRight", currentSpeedRight);
+       // telemetry.addData("currentLeft", currentSpeedLeft);
+       // telemetry.addData("currentRight", currentSpeedRight);
    //     telemetry.addData("currentArm", currentSpeedArm);
-        telemetry.addData("currentLift", currentLiftSpeed);
+       // telemetry.addData("currentLift", currentLiftSpeed);
         telemetry.addData("encoderLeft", robot.leftDriveMotor.getCurrentPosition());
         telemetry.addData("encoderRight", robot.rightDriveMotor.getCurrentPosition());
-        telemetry.addData("reverseMode", reverseMode);
+       // telemetry.addData("reverseMode", reverseMode);
         telemetry.addData("slowMode", slowMode);
+        telemetry.addData("Drag Servo", robot.leftDragServo.getPosition());
+        telemetry.addData("Touch Sensor", robot.rearTouch.getState());
     }
 
     /*

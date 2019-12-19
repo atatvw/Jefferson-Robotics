@@ -63,6 +63,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @Autonomous(name="Auto Blue Inner Depot Drag", group="Pushbot")
+
 public class PushbotAutoBlueInnerDepotDrag extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -83,8 +84,8 @@ public class PushbotAutoBlueInnerDepotDrag extends LinearOpMode {
     static final double RIGHT_SERVO_OPEN = 1.0;
 
 
-static final double LEFT_DOWN = 0.5;
-static final double LEFT_UP= 0.0;
+static final double LEFT_DOWN = 1.0;
+static final double LEFT_UP= 0.15;
 static final double RIGHT_DOWN = 0.5;
 static final double RIGHT_UP = 0.0;
 
@@ -128,7 +129,7 @@ static final double RIGHT_UP = 0.0;
         robot.leftDriveMotor.setPower(-0.25);
         robot.rightDriveMotor.setPower(-0.25);
 
-        while(robot.rearTouch.getState()== false) {
+        while(!robot.rearTouch.getState()) {
             delayTime(0.01);
         }
 
@@ -142,6 +143,10 @@ static final double RIGHT_UP = 0.0;
         robot.leftDragServo.setPosition(LEFT_DOWN);
         robot.rightDragServo.setPosition(RIGHT_DOWN);
 
+        //Turn to move foundation
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-2500,2800,10.0, false);
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,1250,-1400,10.0,false);
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,6000,6000,10.0, false);
         //drop marker
        // delayTime(0.2);
       //  robot.markerServo.setPosition(SERVO_HIGH);
