@@ -30,9 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -48,34 +46,26 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Motor channel:  Left  drive motor:        "motor1"
  * Motor channel:  Right drive motor:        "motor2"
  */
-public class HardwarePushbot
+public class HardwarePushbotMechanum
 {
     /* Public OpMode members. */
-    public DcMotor  leftDriveMotor   = null;
-    public DcMotor  rightDriveMotor  = null;
-  //  public DcMotor  armMotor  = null;
-    public DcMotor  liftMotor  = null;
-    public DcMotor SGS = null;
+    public DcMotor  LFDriveMotor   = null;
+    public DcMotor  RFDriveMotor  = null;
+    public DcMotor  LBDriveMotor  = null;
+    public DcMotor  RBDriveMotor  = null;
+
 
 /*Public Servos.*/
-    public Servo leftGrabServo = null;
-    public Servo rightGrabServo = null;
-    public Servo leftDragServo = null;
-    public Servo rightDragServo = null;
-    public Servo leftBalance = null;
-    public Servo rightBalance = null;
-    public Servo grabber = null;
 
     /*Public Touch Sensor*/
-    public DigitalChannel rearTouch = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
-    
+
     /* Constructor */
-    public HardwarePushbot(){}
+    public HardwarePushbotMechanum(){}
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
@@ -83,41 +73,34 @@ public class HardwarePushbot
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        leftDriveMotor  = hwMap.get(DcMotor.class, "leftDriveMotor");
-        rightDriveMotor = hwMap.get(DcMotor.class, "rightDriveMotor");
-       liftMotor = hwMap.get(DcMotor.class, "liftMotor");
-  //      armMotor = hwMap.get(DcMotor.class, "armMotor");
-        SGS = hwMap.get(DcMotor.class, "SGS");
+        LFDriveMotor  = hwMap.get(DcMotor.class, "leftFrontDM");
+        RFDriveMotor = hwMap.get(DcMotor.class, "rightFrontDM");
+        LBDriveMotor = hwMap.get(DcMotor.class, "leftRearDM");
+        RBDriveMotor = hwMap.get(DcMotor.class, "rightRearDM");
 
         //Define and Intit Servos
-        leftGrabServo =hwMap.get(Servo.class,"leftGrabServo");
-        rightGrabServo = hwMap.get(Servo.class,"rightGrabServo");
-        leftDragServo = hwMap.get(Servo.class, "leftDragServo");
-       // rightDragServo = hwMap.get(Servo.class, "rightDragServo");
-        leftBalance = hwMap.get(Servo.class,"leftBalance");
-        rightBalance = hwMap.get(Servo.class,"rightBalance");
-        grabber = hwMap.get(Servo.class,"grabber");
 
         //Define and Init Touch Sensor
-        rearTouch = hwMap.get(DigitalChannel.class, "rearTouch");
 
-        leftDriveMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        rightDriveMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-   //     armMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        liftMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-
+        //Set Motor Direction
+        LFDriveMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        RFDriveMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        LBDriveMotor.setDirection(DcMotor.Direction.REVERSE);
+        RBDriveMotor.setDirection(DcMotor.Direction.FORWARD);
         // Set all motors to zero power
-        leftDriveMotor.setPower(0);
-        rightDriveMotor.setPower(0);
-   //     armMotor.setPower(0);
-             liftMotor.setPower(0);
+        LFDriveMotor.setPower(0);
+        RFDriveMotor.setPower(0);
+        LBDriveMotor.setPower(0);
+        RBDriveMotor.setPower(0);
+
 
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-     //   armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-       liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LFDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RFDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RBDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LBDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     }
  }

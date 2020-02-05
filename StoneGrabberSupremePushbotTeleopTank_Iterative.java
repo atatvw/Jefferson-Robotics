@@ -1,0 +1,494 @@
+/* Copyright (c) 2017 FIRST. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.firstinspires.ftc.teamcode;
+
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+//import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+
+/**
+ * This file provides basic Telop driving for a Pushbot robot.
+ * The code is structured as an Iterative OpMode
+ *
+ * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
+ * All device access is managed through the HardwarePushbot class.
+ *
+ * This particular OpMode executes a basic Tank Drive Teleop for a PushBot
+ * It raises and lowers the claw using the Gampad Y and A buttons respectively.
+ * It also opens and closes the claws slowly using the left and right Bumper buttons.
+ *
+ * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ */
+
+@TeleOp(name="Stone Grabber Supreme", group="Pushbot")
+
+public class StoneGrabberSupremePushbotTeleopTank_Iterative extends OpMode{
+
+    /* Declare OpMode members. */
+    HardwarePushbot robot       = new HardwarePushbot(); // use the class created to define a Pushbot's hardware
+                                                         // could also use HardwarePushbotMatrix class.\
+    static final double UPDATE_TIME = 0.25; // seconds between power updates
+    static final double MAX_ACCEL = 0.2 ; // maximum power change per updateTime
+    static final double MAX_SPEED = 0.75; // maximum drive speed
+    static final double LIFT_MAX_DOWN_SPEED = 0.40; // maximum lift speed
+    static final double LIFT_MAX_UP_SPEED = 0.40; // maximum lift speed
+    static final double ARM_MAX_DOWN_SPEED = 0.40; // maximum arm speed
+    static final double ARM_MAX_UP_SPEED = 0.40; // maximum arm speed
+    static final double LEFT_SERVO_CLOSED = 0.25;
+    static final double LEFT_SERVO_OPEN = 0.75; // CHANGE
+    static final double RIGHT_SERVO_CLOSED = 0.85;
+    static final double RIGHT_SERVO_OPEN = 0.35 ; // CHANGE
+
+    static final double LEFT_DOWN = 0.15;
+    static final double LEFT_UP= 1.0;
+    static final double RIGHT_DOWN = 0.5;
+    static final double RIGHT_UP = 0.0;
+
+    static final double LIFT = 0.4;
+    static final double LOWER = -0.4;
+    static final double OPEN = 0.1;
+    static final double CLOSE = 0.5;
+
+    double LEFT_BAL = .34;
+    double RIGHT_BAL = .66;
+
+    double GRABBER_OPEN = 1.0;
+    double GRABBER_CLOSED = 0.0;
+
+    double grabberPosition = OPEN;
+
+    double          targetSpeedRight = 0.0;
+    double          targetSpeedLeft = 0.0;
+    double          currentSpeedLeft = 0.0;
+    double          currentSpeedRight = 0.0;
+    double          currentSpeedArm = 0.0;
+    double          currentLiftSpeed = 0.0;
+
+
+    boolean         reverseMode = false;
+    boolean         bButtonHeld = false;
+    boolean         yButtonHeld = false;
+    boolean         aButtonHeld = false;
+    boolean         gamepad2aButtonHeld = false;
+    boolean         xButtonHeld = false;
+    boolean         servoOpen = false;
+    boolean         slowMode = false;
+    boolean         servoUp = true;
+
+    double          driveSpeed = MAX_SPEED;
+
+    //current run time since last update
+    private ElapsedTime runtime = new ElapsedTime();
+
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
+    @Override
+    public void init() {
+        /* Initialize the hardware variables.
+         * The init() method of the hardware class does all the work here
+         */
+        robot.init(hardwareMap);
+
+        robot.leftDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // Possibly add a delay
+        robot.leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        robot.SGS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.SGS.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData("Say", "Hello Driver");    //
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+    }
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+
+        runtime.reset();
+        currentSpeedRight = 0.0;
+        currentSpeedLeft = 0.0;
+       // currentSpeedArm = 0.0;
+        currentLiftSpeed = 0.0;
+        robot.rearTouch.setMode(DigitalChannel.Mode.INPUT);
+       // robot.leftBalance.setPosition(LEFT_BAL);
+       // robot.rightBalance.setPosition(RIGHT_BAL);
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        double left;
+        double right;
+
+        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
+        if(!reverseMode)
+        {
+            left = -gamepad1.left_stick_y;
+            right = -gamepad1.right_stick_y;
+        }
+        else
+        {
+            left = gamepad1.right_stick_y;
+            right = gamepad1.left_stick_y;
+        }
+
+
+        if(gamepad2.a)
+        {
+            if (!gamepad2aButtonHeld)
+            {
+                gamepad2aButtonHeld = true;
+                if (grabberPosition == GRABBER_OPEN) {
+                    grabberPosition = GRABBER_CLOSED;
+                }
+                else {
+                    grabberPosition = GRABBER_OPEN;
+                }
+            }
+        }
+        else {
+            gamepad2aButtonHeld = false;
+        }
+
+
+
+        if(gamepad2.left_bumper)
+            grabberPosition = GRABBER_OPEN;
+        else if(gamepad2.right_bumper)
+            grabberPosition = GRABBER_CLOSED;
+
+
+        robot.grabber.setPosition(grabberPosition);
+
+
+
+        targetSpeedLeft = left * driveSpeed;
+        targetSpeedRight = right * driveSpeed;
+
+        currentLiftSpeed = 0.0;
+
+
+
+        if(gamepad2.left_trigger >= 0.1) {
+            if (robot.SGS.getCurrentPosition() > 500)
+            {
+                currentLiftSpeed = LOWER;
+            }
+        }
+        if(gamepad2.right_trigger >= 0.1) {
+            currentLiftSpeed = LIFT;
+        }
+
+        // stabilize the arm when close to the ground
+
+        if(robot.SGS.getCurrentPosition() > 4000)
+        {
+            currentLiftSpeed -= 0.1;
+        }
+        if(robot.SGS.getCurrentPosition() < 1800)
+        {
+            currentLiftSpeed += 0.1;
+        }
+
+
+        /*
+        if(gamepad1.left_bumper)
+        {
+            if(LEFT_BAL > 0.0 && RIGHT_BAL < 1.0)
+            {
+                LEFT_BAL -= 0.01;
+                RIGHT_BAL += 0.01;
+            }
+            robot.leftBalance.setPosition(LEFT_BAL);
+            robot.rightBalance.setPosition(RIGHT_BAL);
+
+        }
+        else if(gamepad1.right_bumper)
+        {
+            if(LEFT_BAL < 1.0 && RIGHT_BAL > 0.0)
+            {
+                LEFT_BAL += 0.01;
+                RIGHT_BAL -= 0.01;
+            }
+            robot.leftBalance.setPosition(LEFT_BAL);
+            robot.rightBalance.setPosition(RIGHT_BAL);
+
+        }
+
+         */
+
+
+
+
+        //if(gamepad2.left_trigger) {
+        //    currentLiftSpeed = -gamepad2.left_bumper * LIFT_MAX_DOWN_SPEED;
+        //}
+        //if(gamepad2.right_trigger) {
+        //    currentLiftSpeed = gamepad2.right_bumper * LIFT_MAX_UP_SPEED;
+        //}
+/*
+        currentSpeedArm = 0.0;
+        if(gamepad1.left_trigger) {
+            currentSpeedArm = -gamepad1.left_bumper * ARM_MAX_DOWN_SPEED;
+        }
+        if(gamepad1.right_trigger) {
+            currentSpeedArm = gamepad1.right_bumper * ARM_MAX_UP_SPEED;
+        }
+
+        /*
+        // limit acceleration by only allowing MAX_ACCEL power change per UPDATE_TIME
+        if(runtime.seconds() > UPDATE_TIME)
+        {
+            runtime.reset();
+            
+            if( ((currentSpeedLeft >= 0.0) && (targetSpeedLeft >= 0.0)) ||
+                    ((currentSpeedLeft <= 0.0) && (targetSpeedLeft <= 0.0)))
+            {
+                if(Math.abs(currentSpeedLeft) > Math.abs(targetSpeedLeft)) 
+                {
+                    currentSpeedLeft = targetSpeedLeft;
+                }
+                else 
+                {
+                    if (currentSpeedLeft != targetSpeedLeft) {
+                        if (Math.abs(targetSpeedLeft - currentSpeedLeft) <= MAX_ACCEL)
+                            currentSpeedLeft = targetSpeedLeft;
+                        else {
+                            if (currentSpeedLeft < targetSpeedLeft)
+                                currentSpeedLeft += MAX_ACCEL;
+                            else
+                                currentSpeedLeft -= MAX_ACCEL;
+                        }
+                    }
+                }
+
+            }
+            else 
+            {
+                currentSpeedLeft = 0.0;
+            }
+
+            if( ((currentSpeedRight >= 0.0) && (targetSpeedRight >= 0.0)) ||
+                    ((currentSpeedRight <= 0.0) && (targetSpeedRight <= 0.0)))
+            {
+                if(Math.abs(currentSpeedRight) > Math.abs(targetSpeedRight))
+                {
+                    currentSpeedRight = targetSpeedRight;
+                }
+                else
+                {
+                    if (currentSpeedRight != targetSpeedRight) {
+                        if (Math.abs(targetSpeedRight - currentSpeedRight) <= MAX_ACCEL)
+                            currentSpeedRight = targetSpeedRight;
+                        else {
+                            if (currentSpeedRight < targetSpeedRight)
+                                currentSpeedRight += MAX_ACCEL;
+                            else
+                                currentSpeedRight -= MAX_ACCEL;
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                currentSpeedRight = 0.0;
+            }
+
+        }
+        */
+
+        // replace acceleration limit because no longer needed
+        currentSpeedLeft = targetSpeedLeft;
+        currentSpeedRight = targetSpeedRight;
+
+        robot.leftDriveMotor.setPower(currentSpeedLeft);
+        robot.rightDriveMotor.setPower(currentSpeedRight);
+  //      robot.armMotor.setPower(currentSpeedArm);
+
+
+
+
+        robot.SGS.setPower(currentLiftSpeed);
+
+
+
+
+        //set servo position as a linear interpolation based on how far the motor has rotated from neutral position
+
+        if(robot.SGS.getCurrentPosition() > 3020) {
+
+            double motorHigh = 3021;
+            double motorLow = 5900;
+
+            double servoHigh = .43;
+            double servoLow = 1.0;
+
+            double currentMotorPosition = robot.SGS.getCurrentPosition();
+
+            double motorPercentage = (currentMotorPosition - motorHigh) / (motorLow - motorHigh);
+
+            double servoPosition = ((servoLow - servoHigh) * motorPercentage) + servoHigh;
+
+            robot.leftBalance.setPosition(servoPosition);
+            robot.rightBalance.setPosition(1.0 - servoPosition);
+
+            telemetry.addData("leftACTUAL", servoPosition);
+            telemetry.addData("rightACTUAL", 1.0 - servoPosition);
+
+
+        }
+
+        if(gamepad1.a)
+        {
+            if (!aButtonHeld)
+            {
+                aButtonHeld = true;
+                if (servoOpen) {
+                    servoOpen = false;
+                    robot.leftGrabServo.setPosition(LEFT_SERVO_CLOSED);
+                    robot.rightGrabServo.setPosition(RIGHT_SERVO_CLOSED);
+                }
+                else {
+                    servoOpen = true;
+                    robot.leftGrabServo.setPosition(LEFT_SERVO_OPEN);
+                    robot.rightGrabServo.setPosition(RIGHT_SERVO_OPEN);
+                }
+            }
+        }
+        else {
+            aButtonHeld = false;
+        }
+
+        if(gamepad1.b)
+        {
+            if (!bButtonHeld)
+            {
+                bButtonHeld = true;
+                reverseMode = !reverseMode;
+            }
+        }
+        else
+        {
+            bButtonHeld = false;
+        }
+
+
+        if(gamepad1.y)
+        {
+            if (!yButtonHeld)
+            {
+                yButtonHeld = true;
+
+                if(driveSpeed == MAX_SPEED) {
+                    driveSpeed = 0.3 * MAX_SPEED;
+                    slowMode = true;
+                }
+                else
+                    {
+                    driveSpeed = MAX_SPEED;
+                    slowMode = false;
+                }
+            }
+        }
+        else
+        {
+            yButtonHeld = false;
+        }
+
+
+        if(gamepad1.x)
+        {
+            if(!xButtonHeld)
+            {
+                xButtonHeld = true;
+
+                if(servoUp){
+                    servoUp=false;
+                    robot.leftDragServo.setPosition(LEFT_DOWN);
+                }
+                else
+                {
+                    servoUp=true;
+                    robot.leftDragServo.setPosition(LEFT_UP);
+                }
+            }
+        }
+        else
+        {
+            xButtonHeld = false;
+        }
+
+        telemetry.addData("reverse", reverseMode);
+
+       // telemetry.addData("currentLeft", currentSpeedLeft);
+       // telemetry.addData("currentRight", currentSpeedRight);
+   //     telemetry.addData("currentArm", currentSpeedArm);
+       // telemetry.addData("currentLift", currentLiftSpeed);
+ //       telemetry.addData("encoderLeft", robot.leftDriveMotor.getCurrentPosition());
+ //       telemetry.addData("encoderRight", robot.rightDriveMotor.getCurrentPosition());
+        telemetry.addData("encoderSGS", robot.SGS.getCurrentPosition());
+        telemetry.addData("leftBalance", LEFT_BAL);
+        telemetry.addData("rightBalance", RIGHT_BAL);
+        telemetry.addData("grabberPosition", grabberPosition);
+       // telemetry.addData("reverseMode", reverseMode);
+       // telemetry.addData("slowMode", slowMode);
+       // telemetry.addData("Drag Servo", robot.leftDragServo.getPosition());
+       // telemetry.addData("Touch Sensor", robot.rearTouch.getState());
+    }
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+    @Override
+    public void stop() {
+    }
+}

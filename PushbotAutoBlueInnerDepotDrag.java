@@ -120,7 +120,7 @@ static final double RIGHT_UP = 0.0;
         encoderDrivePosition(DRIVE_SPEED, DRIVE_SPEED, 280, 280, 10.0,false); // move out from wall
         encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-1250,1400,10.0,false); //Turn to line
         encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,6000,6000,10.0,false);//Move to build zone
-        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,1250,-1450,10.0, false);//Turn away from foundation
+        encoderDrivePosition(DRIVE_SPEED,DRIVE_SPEED,-1250,1450,10.0, false);//Turn away from foundation
 
        // Move to foundation
         robot.leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -129,7 +129,7 @@ static final double RIGHT_UP = 0.0;
         robot.leftDriveMotor.setPower(-0.25);
         robot.rightDriveMotor.setPower(-0.25);
 
-        while(!robot.rearTouch.getState()) {
+        while(robot.rearTouch.getState() == true) {
             delayTime(0.01);
         }
 
