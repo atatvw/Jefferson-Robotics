@@ -195,7 +195,7 @@ public class PushbotMechanum_Iterative extends OpMode{
         }
 
         //Rotate clockwise
-        if(rSpeed <= 0.1)
+        if(rSpeed <= -0.1)
         {
             leftFront = -rSpeed * driveSpeed;
             leftRear = -rSpeed *driveSpeed;
@@ -204,7 +204,7 @@ public class PushbotMechanum_Iterative extends OpMode{
         }
 
         //Rotate Counterclockwise
-        if (rSpeed >= -0.1)
+        if (rSpeed >= 0.1)
         {
             leftFront = -rSpeed * driveSpeed;
             leftRear = -rSpeed *driveSpeed;
